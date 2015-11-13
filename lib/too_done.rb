@@ -9,14 +9,19 @@ require "pry"
 module TooDone
   class App < Thor
 
-    desc "add 'TASK'", "Add a TASK to a todo list."
+    desc "add 'TASK'", "Add a TASK to a todo list.  Used as follows: TASKS add <task name> <list name> <due_date>"
     option :list, :aliases => :l, :default => "*default*",
       :desc => "The todo list which the task will be filed under."
     option :date, :aliases => :d,
       :desc => "A Due Date in YYYY-MM-DD format."
-    def add(task)
-      # find or create the right todo list
-      # create a new item under that list, with optional date
+      def add(task)
+      list = current_user.lists.find_or_create_by(title: options[:list])
+      if options[:date] != nil
+        new_task = list.tasks.create(name: task,
+                                     created_at: Date.parse(options[:date]))
+      else 
+        new_task = list.tasks.create(name: task) 
+      end
     end
 
     desc "edit", "Edit a task from a todo list."
